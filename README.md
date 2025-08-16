@@ -2,7 +2,7 @@
 
 #Project Description
 
-A Python-based Command-Line Interface (CLI) application for tracking income, expenses and transaction.
+A Python-based Command-Line Interface (CLI) application for tracking income, expenses and transaction.()
 The app allows the user to view, add, search and manage transaction, income and expenses
 
 #Features

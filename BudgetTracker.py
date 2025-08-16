@@ -1,6 +1,7 @@
 import os
 import csv
 from rich.console import Console
+from rich.prompt import Prompt
 from rich.panel import Panel
 from rich.table import Table
 from datetime import datetime, date
@@ -28,22 +29,31 @@ def add_income():
     console.print(Panel("Income Track Section", style="green"))
     while True:
         try:
-            inc_src = str(input("Enter income source eg.(Salary, Freelance, Gifts or Investement):\n>>>"))#input income soucre
+            inc_src = str(Prompt.ask("[cyan]Enter income source eg.(Salary, Freelance, Gifts or Investement):\n>>>[/cyan]")).strip()#input income soucre
             #Reject income input if a number is entered
             if inc_src.isdigit():
-                raise ValueError("Income Source cannot be Integers")
+                raise ValueError("Income Source cannot be a number")
+            #Reject if input empty
+            if not inc_src:
+                raise ValueError("Income Source cannot be empty")
+            #Only allow letters and spaces
+            if not all(x.isalpha() or x.isspace() for x in inc_src):
+                raise ValueError("Income Source can only contain letters or spaces")
             
-            inc_amt = float(input("Enter Amount:\n>>>"))#input Amount
+            inc_amt = float(Prompt.ask("[cyan]Enter Amount:\n>>>[/cyan]", default="0"))#input Amount
+            if not inc_amt.isdigit():
+                raise ValueError("Income Amount can only contain numbers")
             break #breaks loop when both input are valid
-        except ValueError:
-            console.print(Panel("Invalid Value, Try Again"), style="bold red")
+        except ValueError as e:
+            console.print(Panel(f"[bold red]{str(e)}[/bold red]\nTry Again!"),style="bold red")
+            #console.print(Panel("Invalid Value, Try Again"), style="bold red")
             continue
 
     #Date logic
     while True:
 
         try:
-            date_str = input("Enter date in (YY-MM-DD) format or none for default:\n>>>")# date string
+            date_str = Prompt.ask("[cyan]Enter date in (YY-MM-DD) format or none for default:\n>>>[/cyan]")# date string
             if date_str.strip() =="":
                 date_obj = date.today()#Defaults to Current date if left blank
             else:
@@ -67,16 +77,90 @@ def add_income():
             if write_header:#writes the header only once 
                 dict_writer.writeheader()
             dict_writer.writerow(csv_income_data)
-        with console.status(f"(Saving...)") as status:
+        with console.status("[bold green]Saving...") as status:
             sleep(1)
         console.log("[bold red]DONE!!")   
         console.print(Panel(f"Income data saved to {filename} Successfully", style="green"))
 
     save_income_info()
 
-    input("\nPress Enter to continue:\n>>>")
+    input("\nPress Enter to continue to Main Menu:\n>>>")
     load_menu()
     clear_sys()
+
+
+#Expense Track Section
+def add_expenses():
+    clear_sys()
+
+    filename = "expense_data.csv"
+    console.print(Panel("Expense Track Section", style="green"))
+
+    while True:
+        try:
+            category = str(Prompt.ask("[cyan]Enter Expense Category source eg.(Rent, Food, Transport or Entertainment, e.t.c):\n>>>[/cyan]")).strip()#input income soucre
+            #Reject income input if a number is entered
+            if category.isdigit():
+                raise ValueError(" Expense Category  cannot be a number")
+             #Reject if input empty
+            if not category:
+                raise ValueError("Expense category  cannot be empty")
+            #Only allow letters and spaces
+            if not all(x.isalpha() or x.isspace() for x in category):
+                raise ValueError("Expense category can only contain letters or spaces")
+            
+            expense_amt = float(Prompt.ask("[cyan]Enter Expense Amount:\n>>>[/cyan]", default="0"))#input Amount
+            if not expense_amt.isdigit():
+                raise ValueError("Expense Amount can only contain numbers")
+            break #breaks loop when both input are valid
+        except ValueError as e:
+            console.print(Panel(f"[bold red]{str(e)}[/bold red]"), style="bold red")
+            #console.print(Panel("Invalid Value, Try Again"), style="bold red")
+            continue
+
+    #Date logic
+    while True:
+
+        try:
+            date_str = Prompt.ask("[cyan]Enter date in (YY-MM-DD) format or none for default:\n>>>[/cyan]")# date string
+            if date_str.strip() =="":
+                date_obj = date.today()#Defaults to Current date if left blank
+            else:
+                date_obj = datetime.strptime(date_str, "%Y-%m-%d").date()#Converts date string to python date object
+
+            break #exit loop if date is valid
+        except ValueError:
+            console.print(Panel("Invalid Date format! Please Try Again (example:2025-8-16)", style="bold red"))
+            continue #repeats when user enters invalid date format
+
+
+    fields = ['Category', 'Expense_Amount', 'Date']
+    csv_expense_data = {'Category':category, 'Expense_Amount': expense_amt,'Date': date_obj}
+
+    write_header = not os.path.exists(filename) or os.path.getsize(filename) == 0 #checks if the file name exists and is not empty
+
+    #Saving Expense data to a csv file  
+    def save_expense_info():
+        with open(filename, 'a', newline='') as file:
+            dict_writer = csv.DictWriter(file, fieldnames=fields)
+            if write_header:#writes the header only once 
+                dict_writer.writeheader()
+            dict_writer.writerow(csv_expense_data)
+        with console.status("[bold green]Saving...") as status:
+            sleep(1)
+        console.log("[bold red]DONE!!")   
+        console.print(Panel(f"Expense data saved to {filename} Successfully", style="green"))
+
+    save_expense_info()
+    
+    input("\nPress Enter to continue Main Menu:\n>>>")
+    load_menu()
+    clear_sys()
+
+
+def view_summary():
+    x = 3
+        
 
 
 
@@ -109,7 +193,7 @@ def Main_App():
 
 
         try:
-            option = int(input("Enter an Option:\n>>>"))
+            option = int(Prompt.ask("[magenta]Enter an Option:\n>>>[/magenta]"))
             
             #terminate MAinApp
             if option == 0:
@@ -122,6 +206,10 @@ def Main_App():
             #Calling the income Track Section
             elif option == 1:
                 add_income()
+
+            #calling the expense Track Section
+            elif option == 2:
+                add_expenses()
 
             #Return when option not in 'option'
             elif option < 0 or option > 6:
