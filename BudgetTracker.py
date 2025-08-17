@@ -3,7 +3,9 @@ import csv
 from rich.console import Console
 from rich.prompt import Prompt
 from rich.panel import Panel
+from rich.columns import Columns
 from rich.table import Table
+from collections import defaultdict
 from datetime import datetime, date
 from time import sleep
 
@@ -18,6 +20,13 @@ def clear_sys():
 def load_menu():
     with console.status("[bold green]Loading Main Menu") as status:
          sleep(1)
+#handles float errors
+def isfloat(value:str) -> bool:
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
 
 
 
@@ -40,10 +49,13 @@ def add_income():
             if not all(x.isalpha() or x.isspace() for x in inc_src):
                 raise ValueError("Income Source can only contain letters or spaces")
             
-            inc_amt = float(Prompt.ask("[cyan]Enter Amount:\n>>>[/cyan]", default="0"))#input Amount
-            if not inc_amt.isdigit():
-                raise ValueError("Income Amount can only contain numbers")
+            #handle Expense input exceptions
+            income_input = (Prompt.ask("[cyan]Enter Expense Amount:\n>>>[/cyan]", default="0"))#input Amount
+            if not income_input.replace(".", "", 1).isdigit():#allows decimals
+                raise ValueError("Expense Amount can only contain numbers")
+            inc_amt = float(income_input)
             break #breaks loop when both input are valid
+        
         except ValueError as e:
             console.print(Panel(f"[bold red]{str(e)}[/bold red]\nTry Again!"),style="bold red")
             #console.print(Panel("Invalid Value, Try Again"), style="bold red")
@@ -109,9 +121,11 @@ def add_expenses():
             if not all(x.isalpha() or x.isspace() for x in category):
                 raise ValueError("Expense category can only contain letters or spaces")
             
-            expense_amt = float(Prompt.ask("[cyan]Enter Expense Amount:\n>>>[/cyan]", default="0"))#input Amount
-            if not expense_amt.isdigit():
+            #handle Expense input exceptions
+            expense_input = (Prompt.ask("[cyan]Enter Expense Amount:\n>>>[/cyan]", default="0"))#input Amount
+            if not expense_input.replace(".", "", 1).isdigit():#allows decimals
                 raise ValueError("Expense Amount can only contain numbers")
+            expense_amt = float(expense_input)
             break #breaks loop when both input are valid
         except ValueError as e:
             console.print(Panel(f"[bold red]{str(e)}[/bold red]"), style="bold red")
@@ -157,11 +171,107 @@ def add_expenses():
     load_menu()
     clear_sys()
 
-
+#Summary section
 def view_summary():
-    x = 3
+    clear_sys()
+    console.print(Panel("Summary View", style= "green"))
+    with console.status("[bold green] Fetching data...") as status:
+        sleep(2)
+    with console.status("[bold green] Getting Totals...") as status:
+        sleep(2)
+
+    console.log("[bold red]DONE!!")
+    #find total income
+    total_income = 0
+    filename = "income_track.csv"
+    try:
+        with open(filename, 'r') as file:
+            dict_r =csv.DictReader(file)
+            for row in dict_r:
+                amount = float(row['Inc_Amount'])
+                total_income += amount
+
+    except FileNotFoundError:
+        console.print(Panel("No income to view, Try Adding Income"))
+
+    #find total expense and for each category
+    filename = "expense_data.csv"
+    total_expense = 0
+    #exp_totals = {}
+    exp_totals =defaultdict(float)# creates a dictionary to hold per category
+    try:
+        with open(filename, 'r') as file:
+            dict_r =csv.DictReader(file)
+            for row in dict_r:
+                #total expense
+                amount = float(row['Expense_Amount'])
+                total_expense += amount
+                #total expense for each category
+                exp_category = row['Category']
+                exp_amount = float(row["Expense_Amount"])
+                exp_totals[exp_category] += exp_amount
+
+
+
+    except FileNotFoundError:
+        console.print(Panel("No Expense to view, Try Adding Expenses"))
+    #calculate balance, spending and savings
+    balance = total_income - total_expense
+    spendings = (total_expense / total_income) * 100 if total_income else 0 #Prevents ZeroDivisionError
+    savings = (balance / total_income) * 100 if total_income else 0 #Prevent crashing if income = 0
+    #savings and spending status
+    def info_sp():
+        if savings < spendings:
+            return ("[bold red]Warning :(")
+        else:
+            return "" #prints empty to avoid printing None
+        
+    def info_sa():
+        if savings > spendings:
+            return ("[bold green]:)")
+        else:
+            return ""#Prints empty to avoid returning None
         
 
+
+    table = Table(title="Income and Expense Info", header_style="magenta", border_style="magenta")
+    table.add_column("Type", justify="center", header_style="magenta", style="cyan", width=20)
+    table.add_column("Amount", justify="center", header_style="magenta", style="cyan", width=20)
+    table.add_row("Total Income", f"[bold green]{total_income:.2f}[/bold green]")
+    table.add_row("Total Expense", f"[bold red]{total_expense:.2f}[/bold red]")
+    table.add_row("Balance", f"[bold cyan]{balance:.2f}[/bold cyan]")
+
+    #prints table for Income and expense Info
+    console.print(table)
+
+    panel_savings = (Panel(f"[bold green]{savings:.2f}%[/bold green] saved, {info_sa()}", title="Savings", border_style="magenta", width=40))#panel for savings
+    panel_spendings = (Panel(f"[bold red]{spendings:.2f}%[/bold red] spent, {info_sp()}", title="spendings", border_style="magenta", width=40))#panel for spendings
+
+    console.print("\n\nSavings and Spendigs")
+    console.print("-" * 50)
+    console.print(Columns([panel_savings, panel_spendings]))
+
+    with console.status("[bold green] Fetching data...") as status:
+        sleep(2)
+    with console.status("[bold green]Getting Totals...") as status:
+        sleep(1)
+
+    console.log("[bold red]DONE!!")
+
+    #loop through each category and sums
+    console.print("\n\nExpense Amount Breakdown")
+    console.print("-" * 50)
+    console.print(f"{'Category':<20} {'Total':>10} {'Percentage':>15}", style="cyan")
+    print("-" * 50)
+    for category, total in exp_totals.items():
+        exp_percentage = (total / total_expense) * 100
+        console.print(f"{category:<20} {total:>10.2f} {exp_percentage:>10.0f}%", style="cyan")
+
+    
+        
+    input("\nPress Enter to continue Main Menu:\n>>>")
+    load_menu()
+    clear_sys()
 
 
 #main app
@@ -210,6 +320,10 @@ def Main_App():
             #calling the expense Track Section
             elif option == 2:
                 add_expenses()
+
+            #call view summary Section
+            elif option == 3:
+                view_summary()
 
             #Return when option not in 'option'
             elif option < 0 or option > 6:
