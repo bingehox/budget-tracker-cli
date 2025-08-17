@@ -38,6 +38,21 @@ def add_income():
     console.print(Panel("Income Track Section", style="green"))
     while True:
         try:
+            #allowed income sources
+            allowed_inc_src = {
+                "Salary",
+                "Business",
+                "Investments",
+                "Freelance",
+                "Gifts",
+                "Rental Income",
+                "Dividends",
+                "Interest",
+                "Royalties",
+                "Pension",
+                "Side Hustle"
+            }
+
             inc_src = str(Prompt.ask("[cyan]Enter income source eg.(Salary, Freelance, Gifts or Investement):\n>>>[/cyan]")).strip()#input income soucre
             #Reject income input if a number is entered
             if inc_src.isdigit():
@@ -48,6 +63,10 @@ def add_income():
             #Only allow letters and spaces
             if not all(x.isalpha() or x.isspace() for x in inc_src):
                 raise ValueError("Income Source can only contain letters or spaces")
+            #Only allow Income from the list
+            if inc_src not in allowed_inc_src:
+                console.print(Panel("\n".join(allowed_inc_src), title="Allowed Income Sources,Just For Now"))
+                raise ValueError("Please choose from the predefined options  Above for better experience.\nWe’re working on making the categories more flexible in the future! ")
             
             #handle Expense input exceptions
             income_input = (Prompt.ask("[cyan]Enter Expense Amount:\n>>>[/cyan]", default="0"))#input Amount
@@ -57,7 +76,7 @@ def add_income():
             break #breaks loop when both input are valid
         
         except ValueError as e:
-            console.print(Panel(f"[bold red]{str(e)}[/bold red]\nTry Again!"),style="bold red")
+            console.print(Panel(f"[bold red]{str(e)}[/bold red]\n"),style="bold red")
             #console.print(Panel("Invalid Value, Try Again"), style="bold red")
             continue
 
@@ -110,6 +129,25 @@ def add_expenses():
 
     while True:
         try:
+
+            #Allowed expense category
+            allowed_expense_category = [
+                "Rent/",
+                "Utilities",
+                "Food",
+                "Groceries",
+                "Transport",
+                "Entertainment",
+                "Shopping",
+                "Healthcare",
+                "Education",
+                "Debt Repayments",
+                "Savings & Investments",
+                "Donations/Charity",
+                "Miscellaneous"
+            ]
+
+
             category = str(Prompt.ask("[cyan]Enter Expense Category source eg.(Rent, Food, Transport or Entertainment, e.t.c):\n>>>[/cyan]")).strip()#input income soucre
             #Reject income input if a number is entered
             if category.isdigit():
@@ -120,14 +158,17 @@ def add_expenses():
             #Only allow letters and spaces
             if not all(x.isalpha() or x.isspace() for x in category):
                 raise ValueError("Expense category can only contain letters or spaces")
-            
+            #Only allow expense category from this list
+            if category not in allowed_expense_category:
+                console.print(Panel("\n".join(allowed_expense_category), title="Allowed Expense Category"))
+                raise ValueError("Please choose from the above predefined options for better user experince.\nWe’ll work on making the categories more flexible in the future!") 
             #handle Expense input exceptions
             expense_input = (Prompt.ask("[cyan]Enter Expense Amount:\n>>>[/cyan]", default="0"))#input Amount
             if not expense_input.replace(".", "", 1).isdigit():#allows decimals
                 raise ValueError("Expense Amount can only contain numbers")
             expense_amt = float(expense_input)
             break #breaks loop when both input are valid
-        except ValueError as e:
+        except ValueError as e: # for custom message
             console.print(Panel(f"[bold red]{str(e)}[/bold red]"), style="bold red")
             #console.print(Panel("Invalid Value, Try Again"), style="bold red")
             continue
