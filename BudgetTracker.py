@@ -21,12 +21,12 @@ def load_menu():
     with console.status("[bold green]Loading Main Menu") as status:
          sleep(1)
 #handles float errors
-def isfloat(value:str) -> bool:
-    try:
-        float(value)
-        return True
-    except ValueError:
-        return False
+#def isfloat(value:str) -> bool:
+   # try:
+      #  float(value)
+      #  return True
+   # except ValueError:
+     #   return False
 
 
 
@@ -53,7 +53,7 @@ def add_income():
                 "Side Hustle"
             }
 
-            inc_src = str(Prompt.ask("[cyan]Enter income source eg.(Salary, Freelance, Gifts or Investement):\n>>>[/cyan]")).strip()#input income soucre
+            inc_src = str(Prompt.ask("[cyan]Enter income source eg.(Salary, Freelance, Gifts or Investement)\nor type 'help' to view Available Income Category list:\n>>>[/cyan]")).strip()#input income soucre
             #Reject income input if a number is entered
             if inc_src.isdigit():
                 raise ValueError("Income Source cannot be a number")
@@ -63,11 +63,15 @@ def add_income():
             #Only allow letters and spaces
             if not all(x.isalpha() or x.isspace() for x in inc_src):
                 raise ValueError("Income Source can only contain letters or spaces")
+            #returns income list from with user can choose from 
+            if inc_src == "help":
+                console.print(Panel("\n".join(allowed_inc_src), title="Allowed Income Category"))
+                raise ValueError("[green]choose from above list[/green]")
             #Only allow Income from the list
             if inc_src not in allowed_inc_src:
                 console.print(Panel("\n".join(allowed_inc_src), title="Allowed Income Sources,Just For Now"))
                 raise ValueError("Please choose from the predefined options  Above for better experience.\nWe’re working on making the categories more flexible in the future! ")
-            
+
             #handle Expense input exceptions
             income_input = (Prompt.ask("[cyan]Enter Expense Amount:\n>>>[/cyan]", default="0"))#input Amount
             if not income_input.replace(".", "", 1).isdigit():#allows decimals
@@ -131,24 +135,79 @@ def add_expenses():
         try:
 
             #Allowed expense category
-            allowed_expense_category = [
-                "Rent/",
-                "Utilities",
-                "Food",
-                "Groceries",
-                "Transport",
-                "Entertainment",
-                "Shopping",
-                "Healthcare",
-                "Education",
-                "Debt Repayments",
-                "Savings & Investments",
-                "Donations/Charity",
-                "Miscellaneous"
-            ]
+            allowed_expense_category = {
+                "Rent": None,
+                "Utilities": None,
+                "Food": None,
+                "Groceries": None,
+                "Transport": None,
+                "Personal use": None,
+                "Entertainment": None,
+                "Shopping": None,
+                "Healthcare": None,
+                "Education": None,
+                "Debt Repayments": None,
+                "Savings & Investments": None,
+                "Donations/Charity": None,
+                "Miscellaneous": None
+            }
+            
+            #Track Planned budget for each Expense Category
+            def plan_budget():
+                
+                filename = "budget_expense_amount.csv"
+                if not os.path.exists(filename):#checks if file exists
+                    qa_user = Prompt.ask("[cyan]Would you like to set your planned budget limit:(yes/no).\nNOTE: This is a one time process but you can make changes later to the budget\n>>>[/cyan]")
+                    if qa_user == "yes":
+                        console.print("Provide for each Below:")
+                        
+                        #loops through each category 
+                        for key in allowed_expense_category.keys():
+                            while True:
+                                user_input = Prompt.ask(f"{key}:")
+                                if user_input == "":
+                                    allowed_expense_category[key] = None
+                                    console.print(f"{key},[cyan]Saved as[/cyan] [yellow]None[/yellow]")
+                                    break
+                                else:
+                                    try:
+                                        allowed_expense_category[key] = float(user_input)
+                                        break    
+                                    except ValueError:
+                                        console.print("Wrong Entry, should be numbers only", style="red")
+                                        continue
+                    #Save Budgets to none when user skips                
+                    else:
+                        for key in allowed_expense_category.keys():
+                            allowed_expense_category[key] = None
+                        console.print("[yellow]Budgets saved as None (you can update later)[/yellow]")
+
+                    #save budget data to csv file
+                    write_header = not os.path.exists(filename) or os.path.getsize(filename) == 0 #checks if the file name exists and is not empty
+                    fields = ['Category', 'Budget']        
+                    with open(filename, 'w', newline="") as file:
+                        dict_w = csv.DictWriter(file, fieldnames=fields)
+                        if write_header:
+                            dict_w.writeheader()
+                        for cat, amt in allowed_expense_category.items():
+                            dict_w.writerow({"Category": cat, "Budget": amt}) 
+                        with console.status("[bold green]Saving...") as status:
+                            sleep(1)
+                        console.log("[bold red]DONE!!")   
+                        #console.print(Panel(f"Budget data saved", style="green"))  
+
+                        input("\nPress Enter to continue:\n>>>")
+                        clear_sys()
+ 
+
+            plan_budget()
 
 
-            category = str(Prompt.ask("[cyan]Enter Expense Category source eg.(Rent, Food, Transport or Entertainment, e.t.c):\n>>>[/cyan]")).strip()#input income soucre
+
+
+
+            #expense section
+            category = str(Prompt.ask("[cyan]Enter Expense Category source eg.(Rent, Food, Transport or Entertainment, e.t.c)\n or type 'help' to view Options list:\n>>>[/cyan]")).strip()#input income soucre
             #Reject income input if a number is entered
             if category.isdigit():
                 raise ValueError(" Expense Category  cannot be a number")
@@ -158,10 +217,17 @@ def add_expenses():
             #Only allow letters and spaces
             if not all(x.isalpha() or x.isspace() for x in category):
                 raise ValueError("Expense category can only contain letters or spaces")
+            #returns expense list from with user can choose from 
+            if category == "help":
+                console.print(Panel("\n".join(allowed_expense_category), title="Allowed Expense Category"))
+                raise ValueError("[green]choose from above list[/green]")
             #Only allow expense category from this list
             if category not in allowed_expense_category:
                 console.print(Panel("\n".join(allowed_expense_category), title="Allowed Expense Category"))
-                raise ValueError("Please choose from the above predefined options for better user experince.\nWe’ll work on making the categories more flexible in the future!") 
+                raise ValueError("Please choose from the above predefined options for better user experince.\nWe’ll work on making the categories more flexible in the future!")
+            
+        
+
             #handle Expense input exceptions
             expense_input = (Prompt.ask("[cyan]Enter Expense Amount:\n>>>[/cyan]", default="0"))#input Amount
             if not expense_input.replace(".", "", 1).isdigit():#allows decimals
@@ -209,8 +275,8 @@ def add_expenses():
     save_expense_info()
     
     input("\nPress Enter to continue Main Menu:\n>>>")
-    load_menu()
     clear_sys()
+    load_menu()
 
 #Summary section
 def view_summary():
@@ -237,6 +303,7 @@ def view_summary():
 
     #find total expense and for each category
     filename = "expense_data.csv"
+    file_name ="budget_expense_amount.csv"
     total_expense = 0
     #exp_totals = {}
     exp_totals =defaultdict(float)# creates a dictionary to hold per category
@@ -251,27 +318,48 @@ def view_summary():
                 exp_category = row['Category']
                 exp_amount = float(row["Expense_Amount"])
                 exp_totals[exp_category] += exp_amount
+                
+        #read the budget into a dictionary
+        dict_budget = {}
+        with open(file_name, 'r') as file:
+            dict_br = csv.DictReader(file)
+            for row in dict_br:
+                budget_cat = row["Category"]
+                budget_amt = float(row["Budget"])
+                dict_budget[budget_cat] = budget_amt
+
+
+
 
 
 
     except FileNotFoundError:
         console.print(Panel("No Expense to view, Try Adding Expenses"))
-    #calculate balance, spending and savings
+
+
+    #calculate balance, spending and savings and Budget status
     balance = total_income - total_expense
     spendings = (total_expense / total_income) * 100 if total_income else 0 #Prevents ZeroDivisionError
     savings = (balance / total_income) * 100 if total_income else 0 #Prevent crashing if income = 0
+    def budget_status():
+        if budget_amt > exp_amount:
+            return ("Above Limit")
+        else:
+            return("Below Limit")
+            
+    
     #savings and spending status
     def info_sp():
         if savings < spendings:
-            return ("[bold red]Warning :(")
+            return ("[bold red]Warning 🔴")
         else:
-            return "" #prints empty to avoid printing None
+            return "✔" #prints empty to avoid printing None
         
     def info_sa():
         if savings > spendings:
-            return ("[bold green]:)")
+            return ("[bold green] :) 🟢")
         else:
-            return ""#Prints empty to avoid returning None
+            return ":("#Prints empty to avoid returning None
         
 
 
@@ -285,9 +373,9 @@ def view_summary():
     #prints table for Income and expense Info
     console.print(table)
 
+    #prints savings and spending panel
     panel_savings = (Panel(f"[bold green]{savings:.2f}%[/bold green] saved, {info_sa()}", title="Savings", border_style="magenta", width=40))#panel for savings
     panel_spendings = (Panel(f"[bold red]{spendings:.2f}%[/bold red] spent, {info_sp()}", title="spendings", border_style="magenta", width=40))#panel for spendings
-
     console.print("\n\nSavings and Spendigs")
     console.print("-" * 50)
     console.print(Columns([panel_savings, panel_spendings]))
@@ -297,23 +385,28 @@ def view_summary():
     with console.status("[bold green]Getting Totals...") as status:
         sleep(1)
 
-    console.log("[bold red]DONE!!")
 
     #loop through each category and sums
     console.print("\n\nExpense Amount Breakdown")
     console.print("-" * 50)
-    console.print(f"{'Category':<20} {'Total':>10} {'Percentage':>15}", style="cyan")
-    print("-" * 50)
+    console.print(f"{'Category':<20} {'Total':>10} {'Budget':>10} {'%Usage':>15}", style="cyan")
+    print("-" * 60)
     for category, total in exp_totals.items():
+        budget = dict_budget.get(category, 0)#get the corresponding expense category(one-to-one lookup)
         exp_percentage = (total / total_expense) * 100
-        console.print(f"{category:<20} {total:>10.2f} {exp_percentage:>10.0f}%", style="cyan")
+        console.print(f"{category:<20} {total:>10.2f} {budget:>10.2f} {exp_percentage:>10.0f}%", style="cyan")
+        
 
+    console.log("[bold red]DONE!!")
     
         
     input("\nPress Enter to continue Main Menu:\n>>>")
-    load_menu()
     clear_sys()
+    load_menu()
 
+
+def view_transaction():
+    x =4
 
 #main app
 def Main_App():
@@ -366,18 +459,21 @@ def Main_App():
             elif option == 3:
                 view_summary()
 
+            #call view Transaction Section
+            elif option == 4:
+                view_transaction()
             #Return when option not in 'option'
             elif option < 0 or option > 6:
                 console.print(Panel("INVALID OPTION, TRY AGAIN", width=70, style="red"))
-                load_menu()
                 clear_sys()
+                load_menu()
                 continue
             
         #return when unexpected value is entered
         except ValueError:
             console.print(Panel("INVALID VALUE,", width=70, style="red"))
-            load_menu()
             clear_sys()
+            load_menu()
             continue
 
 
