@@ -325,7 +325,7 @@ def view_summary():
             dict_br = csv.DictReader(file)
             for row in dict_br:
                 budget_cat = row["Category"]
-                budget_amt = float(row["Budget"])
+                budget_amt = float(row["Budget"]) if row["Budget"] else 0.0
                 dict_budget[budget_cat] = budget_amt
 
 
@@ -341,12 +341,14 @@ def view_summary():
     balance = total_income - total_expense
     spendings = (total_expense / total_income) * 100 if total_income else 0 #Prevents ZeroDivisionError
     savings = (balance / total_income) * 100 if total_income else 0 #Prevent crashing if income = 0
-    def budget_status():
-        if budget_amt > exp_amount:
-            return ("Above Limit")
+    #get budget status
+    def budget_status(total,budget):
+        if total > budget:
+            return "[red]Over Limit[/red]"
+        elif total == budget:
+            return "[yellow]On limit[/yellow]"
         else:
-            return("Below Limit")
-            
+            return "[green]Within Limit[/green]"    
     
     #savings and spending status
     def info_sp():
@@ -380,26 +382,29 @@ def view_summary():
     console.print("-" * 50)
     console.print(Columns([panel_savings, panel_spendings]))
 
-    with console.status("[bold green] Fetching data...") as status:
-        sleep(2)
-    with console.status("[bold green]Getting Totals...") as status:
-        sleep(1)
+    #with console.status("[bold green] Fetching data...") as status:
+      #  sleep(2)
+    #with console.status("[bold green]Getting Totals...") as status:
+       # sleep(1)
 
+    try:
+        #loop through each category and sums
+        console.print("\n\nExpense Amount Breakdown")
+        console.print("-" * 80)
+        console.print(f"{'Category':<20} {'Total':>5} {'Budget':>15} {'status':>15} {'%Usage':>15}", style="cyan")
 
-    #loop through each category and sums
-    console.print("\n\nExpense Amount Breakdown")
-    console.print("-" * 50)
-    console.print(f"{'Category':<20} {'Total':>10} {'Budget':>10} {'%Usage':>15}", style="cyan")
-    print("-" * 60)
-    for category, total in exp_totals.items():
-        budget = dict_budget.get(category, 0)#get the corresponding expense category(one-to-one lookup)
-        exp_percentage = (total / total_expense) * 100
-        console.print(f"{category:<20} {total:>10.2f} {budget:>10.2f} {exp_percentage:>10.0f}%", style="cyan")
-        
-
-    console.log("[bold red]DONE!!")
+        print("-" * 80)
+        for category, total in exp_totals.items():
+            budget = dict_budget.get(category, 0)#get the corresponding expense category(one-to-one lookup)
+            usage_pct = (total / total_expense) * 100 if total else 0.0
+            status = budget_status(total,budget)
+            console.print(f"{category:<20} {total:>5.2f} {budget:>13.2f} {status:>30.0f} {usage_pct:>10.0f}%", style="cyan")
+    except Exception as e:
+        console.print(f"[red]Error while rendering breakdown: {e}[/red]")
+         
+    console.log("\n[bold red]DONE!!")
     
-        
+           
     input("\nPress Enter to continue Main Menu:\n>>>")
     clear_sys()
     load_menu()
