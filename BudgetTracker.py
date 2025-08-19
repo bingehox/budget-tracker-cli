@@ -1,8 +1,10 @@
 import os
 import csv
+from rich import box
 from rich.console import Console
 from rich.prompt import Prompt
 from rich.panel import Panel
+from rich.tree import Tree
 from rich.columns import Columns
 from rich.table import Table
 from collections import defaultdict
@@ -10,7 +12,7 @@ from datetime import datetime, date
 from time import sleep
 
 
-console = Console() #Initialize Console
+console = Console(force_terminal=True, no_color=True) #Initialize Console
 
 #clear terminal
 def clear_sys():
@@ -398,7 +400,7 @@ def view_summary():
             budget = dict_budget.get(category, 0)#get the corresponding expense category(one-to-one lookup)
             usage_pct = (total / total_expense) * 100 if total else 0.0
             status = budget_status(total,budget)
-            console.print(f"{category:<20} {total:>5.2f} {budget:>13.2f} {status:>30.0f} {usage_pct:>10.0f}%", style="cyan")
+            console.print(f"{category:<20} {total:>5.2f} {budget:>13} {status:>30} {usage_pct:>10.0f}%", style="cyan")
     except Exception as e:
         console.print(f"[red]Error while rendering breakdown: {e}[/red]")
          
@@ -410,8 +412,328 @@ def view_summary():
     load_menu()
 
 
-def view_transaction():
-    x =4
+def transactions():
+    clear_sys()  
+
+    #Transaction menu
+    def transaction_menu():
+        table_tm = Table.grid(padding=(1, 2))
+        table_tm.add_row("[green]OPTIONS[/green]")
+        table_tm.add_row("1. View all transactions")
+        table_tm.add_row("2. View only Income")
+        table_tm.add_row("3. View only Expenses")
+        table_tm.add_row("4. View by Category")
+        table_tm.add_row("5. View by Date Range")
+        table_tm.add_row(" 0.Exit...?")
+
+        console.print(Panel(table_tm, title="TRANSACTION MENU", border_style="magenta", style="cyan", width=70))
+
+
+
+        #view all transaction
+        def view_all_transactions():
+            clear_sys()
+
+            table = Table(title="All TRANSACTION", width=70, style="cyan", show_lines=True, box=box.ROUNDED, show_header=True)
+            table.add_column("Type",header_style="magenta",style="cyan")
+            table.add_column("Category",header_style="magenta",style="cyan")
+            table.add_column("Amount", header_style="magenta", style="cyan")
+            table.add_column("Date", header_style="magenta", style="cyan")
+            try:
+
+                filename = "expense_data.csv"
+                file_name = "income_track.csv"
+
+                with  open(file_name, 'r') as file:
+                    dict_ri = csv.DictReader(file)
+                    
+                    for row in dict_ri:
+                        table.add_row("Income", row['Source'], f"[green]{row['Inc_Amount']}[/green]", row['Date'])
+
+                with  open(filename, 'r') as f:
+                    dict_re = csv.DictReader(f)                    
+                    for row in dict_re:
+                        table.add_row("Expense", row['Category'], f"[red]{row['Expense_Amount']}[/red]", row['Date'])
+                
+                console.print(table)
+            except FileNotFoundError:
+                console.print(Panel("No Transactions Found"))
+
+            input("Enter to continue\n>>>")
+            clear_sys()
+            sleep(0.3)
+            console.print(Panel(table_tm, title="TRANSACTION MENU", border_style="magenta", style="cyan", width=70))
+
+            
+
+        #view only income transactions
+        def view_only_income():
+            clear_sys()
+
+            table = Table(title="INCOME TRANSACTION", width=70, style="cyan", show_lines=True, show_header=True)
+            table.add_column("Category",header_style="magenta",style="cyan")
+            table.add_column("Amount", header_style="magenta", style="cyan")
+            table.add_column("Date", header_style="magenta", style="cyan")
+            try:
+
+                file_name = "income_track.csv"
+
+                with  open(file_name, 'r') as file:
+                    dict_ri = csv.DictReader(file)
+                    
+                    for row in dict_ri:
+                        table.add_row(row['Source'], f"[green]{row['Inc_Amount']}[/green]", row['Date'])
+
+                    console.print(table)
+
+            except FileNotFoundError:
+                console.print(Panel("No Transactions Found"))
+            
+            input("Enter to continue\n>>>")
+            clear_sys()
+            sleep(0.3)
+            console.print(Panel(table_tm, title="TRANSACTION MENU", border_style="magenta", style="cyan", width=70))
+            
+
+        #view only expense transactios
+        def view_only_expense():
+            clear_sys()
+
+            table = Table(title="EXPENSE TRANSACTIONS", width=70, style="cyan", show_lines=True, box=box.ROUNDED, show_header=True)
+            table.add_column("Category",header_style="magenta",style="cyan")
+            table.add_column("Amount", header_style="magenta", style="cyan")
+            table.add_column("Date", header_style="magenta", style="cyan")
+            try:
+
+                filename = "expense_data.csv"
+
+                with  open(filename, 'r') as file:
+                    dict_ri = csv.DictReader(file)
+                    
+                    for row in dict_ri:
+                        table.add_row(row['Category'], f"[red]{row['Expense_Amount']}[/red]", row['Date'])
+
+                console.print(table)
+
+            except FileNotFoundError:
+                console.print(Panel("No Transactions Found"))
+
+
+            input("Enter to continue\n>>>")
+            clear_sys()
+            sleep(0.3)
+            console.print(Panel(table_tm, title="TRANSACTION MENU", border_style="magenta", style="cyan", width=70))
+
+        
+
+        #view transactions(expense and income) by specific category
+        def view_by_category():
+            clear_sys()
+
+            allowed_inc_src = {
+                "Salary",
+                "Business",
+                "Investments",
+                "Freelance",
+                "Gifts",
+                "Rental Income",
+                "Dividends",
+                "Interest",
+                "Royalties",
+                "Pension",
+                "Side Hustle"
+            }
+
+            #Allowed expense category
+            allowed_expense_category = {
+                "Rent",
+                "Utilities",
+                "Food",
+                "Groceries",
+                "Transport",
+                "Personal use",
+                "Entertainment",
+                "Shopping",
+                "Healthcare",
+                "Education",
+                "Debt Repayments",
+                "Savings & Investments",
+                "Donations/Charity",
+                "Miscellaneous"
+            }
+
+            #console.print(Panel("Filter By Category"))
+            tree = Tree("[bold magenta]Transaction Structure[/bold magenta]", guide_style="bright_cyan",)
+            income_tree = tree.add("[bold green]Income[/bold green]")
+            for income in allowed_inc_src:
+                income_tree.add(income)
+            expense_tree = tree.add("[bold red]Expense[/bold red]")
+            for expense in allowed_expense_category:
+                expense_tree.add(expense)
+
+            console.print(tree)
+
+            while True:
+                q_user = Prompt.ask("Provide a category key-word as it is you would like to lookup 🔎:\n>>>")
+
+                #check income list for the specified category
+                if q_user in allowed_inc_src:
+                    table_cat = Table(title=f"{q_user} Category")
+                    t_totals_i = Table(show_header=False, box=None)
+                    table_cat.add_column("Category")
+                    table_cat.add_column("Amount")
+                    table_cat.add_column("Date")
+
+                    try:
+                        total_i = defaultdict(float)
+                        with open("income_track.csv",'r') as file:
+                            dict_r = csv.DictReader(file)
+                            for row in dict_r:
+                                if row['Source'] == q_user:
+                                    source = row["Source"]
+                                    amount_i = float(row["Inc_Amount"])
+                                    total_i[source] += amount_i #Accumulate totals for the category
+                                    table_cat.add_row(row['Source'], row['Inc_Amount'], row['Date'])
+
+
+                        for x, y in total_i.items():
+                            #table_cat.add_row("TOTALS:", f"{y:.1f}")
+                            t_totals_i.add_row("TOTALS:", f"{y:.1f}")
+                            
+                        console.print(table_cat)
+                        console.print(t_totals_i)
+                        break
+
+                    except FileNotFoundError:
+                        console.print("No Transactions found")
+                        break
+
+                #checks expense list for the specified category
+                elif q_user  in allowed_expense_category:
+
+                    table_cat_e = Table(title=f"{q_user} Category")
+                    t_totals = Table(show_header=False, box=None)
+                    table_cat_e.add_column("Category")
+                    table_cat_e.add_column("Amount")
+                    table_cat_e.add_column("Date")
+
+                    try:
+                        total_e = defaultdict(float)
+                        with open("expense_data.csv",'r') as file:
+                            dict_r = csv.DictReader(file)
+                            for row in dict_r:
+                                if row['Category'] == q_user:
+                                    #exp_category = row['Category']
+                                    #exp_amount = float(row["Expense_Amount"])
+                                    #exp_totals[exp_category] += exp_amount
+                                    category = row["Category"]
+                                    amount = float(row['Expense_Amount'])
+                                    total_e[category] += amount #accumulate totals for each category
+                                    table_cat_e.add_row(row['Category'], row['Expense_Amount'], row["Date"])
+                        
+                        for x, y in total_e.items():
+                            t_totals.add_row("TOTALS:", f"{y:.2f}")
+                        
+                    
+
+                        console.print(table_cat_e)
+                        console.print(t_totals)
+                        break
+
+
+                    except FileNotFoundError:
+                        console.print("No Transactions found")
+                        break
+                        
+                else:
+                    console.print("[red]Invalid key-word[/red]")
+                    continue
+
+
+
+
+            input("\nEnter to continue\n>>>")
+            clear_sys()
+            sleep(0.3)
+            console.print(Panel(table_tm, title="TRANSACTION MENU", border_style="magenta", style="cyan", width=70))
+
+            
+
+        #view by date range()
+        def view_by_date():
+            x =5
+
+        def exit():
+            clear_sys()
+            load_menu()
+
+
+        #logic flow section
+
+        while True:
+
+            try:
+                option = int(Prompt.ask("[cyan]Choose an Option[/cyan]"))
+
+                #return to main menu
+                if option == 0:
+                    #with console.status("[green]loading...[/green]") as status:
+                        #sleep(2)
+                    exit()#exit to mainmenu
+                    break
+                #view all transaction
+                elif option == 1:
+                    view_all_transactions()
+
+                #view Income only
+                elif option == 2:
+                    view_only_income()
+
+                #view only expense
+                elif option == 3:
+                    view_only_expense()
+                
+                #view by category
+                elif option == 4:
+                    view_by_category()
+
+                elif option < 0 or option > 5:
+                    console.print(Panel("INVALID OPTION, TRY AGAIN", width=70, style="red"))
+                    sleep(0.3)
+                    continue    
+
+
+            
+            #return when unexpected value is entered
+            except ValueError:
+                console.print(Panel("INVALID VALUE,", width=70, style="red"))
+                sleep(0.3)
+                
+                continue
+
+            
+        
+
+   
+
+    transaction_menu()
+
+    
+
+
+
+
+
+
+
+
+
+
+
+    #input("\nPress Enter to continue Main Menu:\n>>>")
+    #clear_sys()
+    #load_menu()
+
 
 #main app
 def Main_App():
@@ -427,10 +749,9 @@ def Main_App():
     table.add_row("1.Add Income")
     table.add_row("2.Add Expenses")
     table.add_row("3.View Summary")
-    table.add_row("4.View Transaction")
-    table.add_row("5.Manage Transaction")
+    table.add_row("4.Manage Transactions")
     table.add_row("6.Generate Report")
-    table.add_row("0.Exit...?")
+    table.add_row("0. Exit...?")
 
     
     while True:
@@ -466,10 +787,11 @@ def Main_App():
 
             #call view Transaction Section
             elif option == 4:
-                view_transaction()
+                transactions()
             #Return when option not in 'option'
             elif option < 0 or option > 6:
                 console.print(Panel("INVALID OPTION, TRY AGAIN", width=70, style="red"))
+                sleep(0.4)
                 clear_sys()
                 load_menu()
                 continue
@@ -477,6 +799,7 @@ def Main_App():
         #return when unexpected value is entered
         except ValueError:
             console.print(Panel("INVALID VALUE,", width=70, style="red"))
+            sleep(0.4)
             clear_sys()
             load_menu()
             continue
