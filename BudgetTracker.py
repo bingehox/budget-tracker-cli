@@ -12,12 +12,14 @@ from datetime import datetime, date
 from time import sleep
 
 
-console = Console(force_terminal=True, no_color=True) #Initialize Console
+#console = Console(force_terminal=True, no_color=True) #Initialize Console
+console = Console()
 
 #clear terminal
 def clear_sys():
-     os .system('cls' if os.name == 'nt' else 'clear')
-
+    os .system('cls' if os.name == 'nt' else 'clear')
+    #console.clear()
+    
 #loading MAin Menu
 def load_menu():
     with console.status("[bold green]Loading Main Menu") as status:
@@ -355,13 +357,13 @@ def view_summary():
     #savings and spending status
     def info_sp():
         if savings < spendings:
-            return ("[bold red]Warning 🔴")
+            return ("[bold red]Warning[/bold red]")
         else:
             return "✔" #prints empty to avoid printing None
         
     def info_sa():
         if savings > spendings:
-            return ("[bold green] :) 🟢")
+            return ("[bold green]:)[/bold green]")
         else:
             return ":("#Prints empty to avoid returning None
         
@@ -434,11 +436,11 @@ def transactions():
         def view_all_transactions():
             clear_sys()
 
-            table = Table(title="All TRANSACTION", width=70, style="cyan", show_lines=True, box=box.ROUNDED, show_header=True)
-            table.add_column("Type",header_style="magenta",style="cyan")
-            table.add_column("Category",header_style="magenta",style="cyan")
-            table.add_column("Amount", header_style="magenta", style="cyan")
-            table.add_column("Date", header_style="magenta", style="cyan")
+            table_t = Table(title="All TRANSACTION", width=70, style="cyan", show_lines=True, box=box.ROUNDED, show_header=True)
+            table_t.add_column("Type",header_style="magenta",style="cyan")
+            table_t.add_column("Category",header_style="magenta",style="cyan")
+            table_t.add_column("Amount", header_style="magenta", style="cyan")
+            table_t.add_column("Date", header_style="magenta", style="cyan")
             try:
 
                 filename = "expense_data.csv"
@@ -448,14 +450,14 @@ def transactions():
                     dict_ri = csv.DictReader(file)
                     
                     for row in dict_ri:
-                        table.add_row("Income", row['Source'], f"[green]{row['Inc_Amount']}[/green]", row['Date'])
+                        table_t.add_row("Income", row['Source'], f"[green]{row['Inc_Amount']}[/green]", row['Date'])
 
                 with  open(filename, 'r') as f:
                     dict_re = csv.DictReader(f)                    
                     for row in dict_re:
-                        table.add_row("Expense", row['Category'], f"[red]{row['Expense_Amount']}[/red]", row['Date'])
+                        table_t.add_row("Expense", row['Category'], f"[red]{row['Expense_Amount']}[/red]", row['Date'])
                 
-                console.print(table)
+                console.print(table_t)
             except FileNotFoundError:
                 console.print(Panel("No Transactions Found"))
 
@@ -470,10 +472,10 @@ def transactions():
         def view_only_income():
             clear_sys()
 
-            table = Table(title="INCOME TRANSACTION", width=70, style="cyan", show_lines=True, show_header=True)
-            table.add_column("Category",header_style="magenta",style="cyan")
-            table.add_column("Amount", header_style="magenta", style="cyan")
-            table.add_column("Date", header_style="magenta", style="cyan")
+            v_table_i = Table(title="INCOME TRANSACTION", width=70, style="cyan", show_lines=True, show_header=True)
+            v_table_i.add_column("Category",header_style="magenta",style="cyan")
+            v_table_i.add_column("Amount", header_style="magenta", style="cyan")
+            v_table_i.add_column("Date", header_style="magenta", style="cyan")
             try:
 
                 file_name = "income_track.csv"
@@ -482,9 +484,9 @@ def transactions():
                     dict_ri = csv.DictReader(file)
                     
                     for row in dict_ri:
-                        table.add_row(row['Source'], f"[green]{row['Inc_Amount']}[/green]", row['Date'])
+                        v_table_i.add_row(row['Source'], f"[green]{row['Inc_Amount']}[/green]", row['Date'])
 
-                    console.print(table)
+                    console.print(v_table_i)
 
             except FileNotFoundError:
                 console.print(Panel("No Transactions Found"))
@@ -499,10 +501,10 @@ def transactions():
         def view_only_expense():
             clear_sys()
 
-            table = Table(title="EXPENSE TRANSACTIONS", width=70, style="cyan", show_lines=True, box=box.ROUNDED, show_header=True)
-            table.add_column("Category",header_style="magenta",style="cyan")
-            table.add_column("Amount", header_style="magenta", style="cyan")
-            table.add_column("Date", header_style="magenta", style="cyan")
+            table_e = Table(title="EXPENSE TRANSACTIONS", width=70, style="cyan", show_lines=True, box=box.ROUNDED, show_header=True)
+            table_e.add_column("Category",header_style="magenta",style="cyan")
+            table_e.add_column("Amount", header_style="magenta", style="cyan")
+            table_e.add_column("Date", header_style="magenta", style="cyan")
             try:
 
                 filename = "expense_data.csv"
@@ -511,17 +513,18 @@ def transactions():
                     dict_ri = csv.DictReader(file)
                     
                     for row in dict_ri:
-                        table.add_row(row['Category'], f"[red]{row['Expense_Amount']}[/red]", row['Date'])
+                        table_e.add_row(row['Category'], f"[red]{row['Expense_Amount']}[/red]", row['Date'])
 
-                console.print(table)
+                console.print(table_e)
 
             except FileNotFoundError:
                 console.print(Panel("No Transactions Found"))
 
 
             input("Enter to continue\n>>>")
+            
             clear_sys()
-            sleep(0.3)
+            sleep(0.4)
             console.print(Panel(table_tm, title="TRANSACTION MENU", border_style="magenta", style="cyan", width=70))
 
         
@@ -563,6 +566,7 @@ def transactions():
             }
 
             #console.print(Panel("Filter By Category"))
+
             tree = Tree("[bold magenta]Transaction Structure[/bold magenta]", guide_style="bright_cyan",)
             income_tree = tree.add("[bold green]Income[/bold green]")
             for income in allowed_inc_src:
@@ -574,7 +578,7 @@ def transactions():
             console.print(tree)
 
             while True:
-                q_user = Prompt.ask("Provide a category key-word as it is you would like to lookup 🔎:\n>>>")
+                q_user = Prompt.ask("Provide a category key-word you would like to lookup 🔎:\n>>>")
 
                 #check income list for the specified category
                 if q_user in allowed_inc_src:
@@ -661,7 +665,102 @@ def transactions():
 
         #view by date range()
         def view_by_date():
-            x =5
+            clear_sys()
+
+            console.print(Panel("View by Date/Date Range"), width=70, style="magenta")
+            console.print("[magenta]1.View by Single Date[/magenta]", style="magenta")
+            console.print("[magenta]2.View by Date Range[/magenta]", style="magenta")
+
+            option_d = int(Prompt.ask("[cyan]Choose an Option[/cyan]:\n>>>"))
+
+            #view by singe Date
+            if option_d == 1:
+                while True:
+                    try:
+                        date_e = Prompt.ask("[cyan]Enter date in (YY-MM-DD) format or none for default:\n>>>[/cyan]")# date string
+                        if date_e.strip() =="":
+                            date_obj = date.today()#Defaults to Current date if left blank
+                        else:
+                            date_obj = datetime.strptime(date_e, "%Y-%m-%d").date()#Converts date string to python date object
+
+                        break #exit loop if date is valid
+                    except ValueError:
+                        console.print(Panel("Invalid Date format! Please Try Again (example:2025-8-16)"), style="bold red")
+                        continue #repeats when user enters invalid date format
+
+                try:
+                    table_d_e = Table(title="Date Category", border_style="cyan")
+                    table_d_e.add_column("Category", style="cyan", header_style="magenta")
+                    table_d_e.add_column("Amount", style="red", header_style="magenta")
+                    table_d_e.add_column("Date", style="cyan", header_style="magenta")
+                    with open("expense_data.csv", 'r') as file:
+                        dict_r = csv.DictReader(file)
+                        for row in dict_r:
+                            date_row = datetime.strptime(row['Date'], "%Y-%m-%d").date()
+                            if date_obj == date_row:
+                                table_d_e.add_row(row['Category'], row['Expense_Amount'], row['Date'])
+
+                    console.print(table_d_e)
+
+                        
+
+                except FileNotFoundError:
+                    console.print("No data Found, Try adding New Ones")
+
+            #view by Date Range
+            elif option_d == 2:
+                while True:
+                    try:
+                        console.print("Use YYYY-mm-dd format", style = "magenta")
+                        date1 = Prompt.ask("[cyan]Enter Start date:[/cyan]")
+                        date2 = Prompt.ask("[cyan]Enter End date:[/cyan]")
+                        
+                        if not date1:
+                            date_obj1 = date.today()
+                        else:
+                            date_obj1 = datetime.strptime(date1, "%Y-%m-%d").date()
+
+                        if not date2:
+                            date_obj2 = date.today()
+                        else:
+                            date_obj2 = datetime.strptime(date2, "%Y-%m-%d").date()
+                            
+                            
+                        break #exit loop if date is valid
+                    except ValueError:
+                        console.print(Panel("Invalid Date format! Please Try Again (example:2025-8-16)"), style="bold red")
+                        continue #repeats when user enters invalid date format
+
+                    
+
+                try:
+                    table_date_range = Table(title="Date Category")
+                    table_date_range.add_column("Category", style="cyan", header_style="magenta")
+                    table_date_range.add_column("Amount", style="red", header_style="magenta")
+                    table_date_range.add_column("Date", style="cyan", header_style="magenta")
+                    with open("expense_data.csv", 'r') as file:
+                        dict_r = csv.DictReader(file)
+                        for row in dict_r:
+                            date_row = datetime.strptime(row['Date'], "%Y-%m-%d").date()
+                            if date_obj1 <= date_row <= date_obj2:
+                                table_date_range.add_row(row['Category'], row['Expense_Amount'], row['Date'])
+                            
+                            
+
+                    console.print(table_date_range)
+
+                        
+
+                except FileNotFoundError:
+                    console.print("No data Found, Try adding New Ones")
+
+                
+
+            input("\nEnter to continue\n>>>")
+            clear_sys()
+            sleep(0.3)
+            console.print(Panel(table_tm, title="TRANSACTION MENU", border_style="magenta", style="cyan", width=70))
+
 
         def exit():
             clear_sys()
@@ -696,6 +795,10 @@ def transactions():
                 #view by category
                 elif option == 4:
                     view_by_category()
+
+                #view by Date
+                elif option == 5:
+                    view_by_date()
 
                 elif option < 0 or option > 5:
                     console.print(Panel("INVALID OPTION, TRY AGAIN", width=70, style="red"))
