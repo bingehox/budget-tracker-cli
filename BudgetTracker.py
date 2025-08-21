@@ -39,7 +39,7 @@ def add_income():
     clear_sys()
 
     filename = "income_track.csv"
-    console.print(Panel("Income Track Section", style="green"))
+    console.print(Panel("Income Track Section\n0. \\-->", style="green"))
     while True:
         try:
             #allowed income sources
@@ -57,7 +57,11 @@ def add_income():
                 "Side Hustle"
             }
 
-            inc_src = str(Prompt.ask("[cyan]Enter income source eg.(Salary, Freelance, Gifts or Investement)\nor type 'help' to view Available Income Category list:\n>>>[/cyan]")).strip()#input income soucre
+            inc_src = str(Prompt.ask("[cyan]Enter income source eg.(Salary, Freelance or Gifts)\nor type 'help' to view Available list:\n>>>[/cyan]")).strip()#input income soucre
+            #Return to Main Menu
+            if inc_src == "0":
+                clear_sys()
+                return
             #Reject income input if a number is entered
             if inc_src.isdigit():
                 raise ValueError("Income Source cannot be a number")
@@ -69,11 +73,11 @@ def add_income():
                 raise ValueError("Income Source can only contain letters or spaces")
             #returns income list from with user can choose from 
             if inc_src == "help":
-                console.print(Panel("\n".join(allowed_inc_src), title="Allowed Income Category"))
-                raise ValueError("[green]choose from above list[/green]")
+                console.print(Panel("\n".join(allowed_inc_src), title="Allowed Income Category",width=70))
+                #raise ValueError("[green]choose from above list[/green]")
             #Only allow Income from the list
             if inc_src not in allowed_inc_src:
-                console.print(Panel("\n".join(allowed_inc_src), title="Allowed Income Sources,Just For Now"))
+                console.print(Panel("\n".join(allowed_inc_src), title="Allowed Income Sources,Just For Now", width=70))
                 raise ValueError("Please choose from the predefined options  Above for better experience.\nWe’re working on making the categories more flexible in the future! ")
 
             #handle Expense input exceptions
@@ -84,7 +88,7 @@ def add_income():
             break #breaks loop when both input are valid
         
         except ValueError as e:
-            console.print(Panel(f"[bold red]{str(e)}[/bold red]\n"),style="bold red")
+            console.print(Panel(f"[bold red]{str(e)}[/bold red]\n"),style="bold red", width=70)
             #console.print(Panel("Invalid Value, Try Again"), style="bold red")
             continue
 
@@ -133,7 +137,7 @@ def add_expenses():
     clear_sys()
 
     filename = "expense_data.csv"
-    console.print(Panel("Expense Track Section", style="green"))
+    console.print(Panel("Expense Track Section\n0. \\-->", style="green", width=80))
 
     while True:
         try:
@@ -211,7 +215,11 @@ def add_expenses():
 
 
             #expense section
-            category = str(Prompt.ask("[cyan]Enter Expense Category source eg.(Rent, Food, Transport or Entertainment, e.t.c)\n or type 'help' to view Options list:\n>>>[/cyan]")).strip()#input income soucre
+            category = str(Prompt.ask("[cyan]Enter Expense Category source eg.(Rent, Food or Transport, e.t.c)\n or type 'help' to view Options list:\n>>>[/cyan]")).strip()#input expese soucre
+            #Return to Main Menu
+            if category == "0":
+                clear_sys()
+                return 
             #Reject income input if a number is entered
             if category.isdigit():
                 raise ValueError(" Expense Category  cannot be a number")
@@ -223,12 +231,12 @@ def add_expenses():
                 raise ValueError("Expense category can only contain letters or spaces")
             #returns expense list from with user can choose from 
             if category == "help":
-                console.print(Panel("\n".join(allowed_expense_category), title="Allowed Expense Category"))
+                console.print(Panel("\n".join(allowed_expense_category), title="Allowed Expense Category", width=80))
                 raise ValueError("[green]choose from above list[/green]")
             #Only allow expense category from this list
             if category not in allowed_expense_category:
-                console.print(Panel("\n".join(allowed_expense_category), title="Allowed Expense Category"))
-                raise ValueError("Please choose from the above predefined options for better user experince.\nWe’ll work on making the categories more flexible in the future!")
+                console.print(Panel("\n".join(allowed_expense_category), title="Allowed Expense Category", width=80))
+               # raise ValueError("Please choose from the above predefined options for better user experince.\nWe’ll work on making the categories more flexible in the future!")
             
         
 
@@ -239,7 +247,7 @@ def add_expenses():
             expense_amt = float(expense_input)
             break #breaks loop when both input are valid
         except ValueError as e: # for custom message
-            console.print(Panel(f"[bold red]{str(e)}[/bold red]"), style="bold red")
+            console.print(Panel(f"[bold red]{str(e)}[/bold red]"), style="bold red", width=80)
             #console.print(Panel("Invalid Value, Try Again"), style="bold red")
             continue
 
@@ -426,7 +434,7 @@ def transactions():
         table_tm.add_row("3. View only Expenses")
         table_tm.add_row("4. View by Category")
         table_tm.add_row("5. View by Date Range")
-        table_tm.add_row(" 0.Exit...?")
+        table_tm.add_row(" 0. \\->...?")
 
         console.print(Panel(table_tm, title="TRANSACTION MENU", border_style="magenta", style="cyan", width=70))
 
@@ -854,7 +862,7 @@ def Main_App():
     table.add_row("3.View Summary")
     table.add_row("4.Manage Transactions")
     table.add_row("6.Generate Report")
-    table.add_row("0. Exit...?")
+    table.add_row("0. \\-->...?")
 
     
     while True:
