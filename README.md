@@ -98,16 +98,16 @@ These are the allowed Income and Expense Sources. Flexibility is deprived but th
 
 Some features/improvements I’d like to add later:
 
--Generate detailed reports (PDF/Excel)
+- Generate detailed reports (PDF/Excel)
 
--Visual charts (spending breakdown, trends)
+- Visual charts (spending breakdown, trends)
 
--Intergrate TUI(text-based User Interface
+- Intergrate TUI(text-based User Interface
 
 
--Cloud backup/sync
+- Cloud backup/sync
 
--Flexibility
+- Flexibility
 
 
 
