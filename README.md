@@ -74,35 +74,40 @@ Data Storage
 
 The app stores data in simple CSV files:
 
-income_track.csv → income entries
+ -income_track.csv → income entries
 
-expense_data.csv → expense entries
+ -expense_data.csv → expense entries
 
-budget_expense_amount.csv → budget limits per category
+ -budget_expense_amount.csv → budget limits per category
 
 
 
 ---
 
-Categories
+## Categories
+These are the allowed Income and Expense Sources. Flexibility is deprived but this is so to allow better user experience, In the future we'll ensure flexibility is handled well.
 
-Income sources: Salary, Business, Freelance, Investments, Gifts, Rental Income, Dividends, Interest, Royalties, Pension, Side Hustle.
+**Income sources**: Salary, Business, Freelance, Investments, Gifts, Rental Income, Dividends, Interest, Royalties, Pension, Side Hustle.
 
-Expense categories: Rent, Utilities, Food, Groceries, Transport, Personal use, Entertainment, Shopping, Healthcare, Education, Debt Repayments, Savings & Investments, Donations/Charity, Miscellaneous.
+**Expense categories**: Rent, Utilities, Food, Groceries, Transport, Personal use, Entertainment, Shopping, Healthcare, Education, Debt Repayments, Savings & Investments, Donations/Charity, Miscellaneous.
 
 
 ---
 
 ## Future Improvements
 
-Some features I’d like to add later:
+Some features/improvements I’d like to add later:
 
-Generate detailed reports (PDF/Excel)
+-Generate detailed reports (PDF/Excel)
 
-Visual charts (spending breakdown, trends)
+-Visual charts (spending breakdown, trends)
+
+-Intergrate TUI(text-based User Interface
 
 
-Cloud backup/sync
+-Cloud backup/sync
+
+-Flexibility
 
 
 
