@@ -1,15 +1,113 @@
-#Budget Tracker CLI
+# Budget Tracker CLI  
 
-#Project Description
+A command-line application for tracking personal income, expenses, and budgets.  
+It’s built with Python and uses the [Rich] library for a better-looking terminal interface.  
 
-A Python-based Command-Line Interface (CLI) application for tracking income, expenses and transaction.()
-The app allows the user to view, add, search and manage transaction, income and expenses
+---
 
-#Features
+## Overview  
+This tool lets you manage personal finances directly from the terminal.  
+You can record income, log expenses, set category budgets, and view summaries — all stored locally in CSV files.  
 
--Add income and expense entries
--View summary of total expenses, income and balance
--load and save transactions to a file
--manage transactons 
--search specific transactions by keyword or date
--Generate reports eg.(monthly/weekly)
+---
+
+## Features  
+- **Add Income**: record new income transactions  
+- **Add Expenses**: log expenses by category (with optional budget limits)  
+- **Update Budget**: change planned budget amounts for expense categories  
+- **View Summary**: see totals for income, expenses, balance, savings %, and spending %  
+- **Manage Transactions**:  
+  - View all transactions  
+  - Filter by income or expense  
+  - Filter by category  
+  - Filter by date or date range  
+
+Data is saved automatically in CSV files so you can track finances over time.  
+
+---
+
+## Installation  
+
+Clone the repository:  
+```bash
+git clone https://github.com/bingehox/budget-tracker-cli.git
+cd budget-tracker-cli
+```
+(Optional but recommended) Create and activate a virtual environment:
+```
+python -m venv venv
+```
+
+# On Windows
+```
+venv\Scripts\activate
+```
+
+# On macOS/Linux
+```
+source venv/bin/activate
+```
+
+Install dependencies:
+```
+
+pip install -r requirements.txt
+```
+
+
+---
+
+## Usage
+
+Run the app:
+```
+
+python BudgetTracker.py
+```
+
+You’ll see a menu with options to add income, add expenses, update budgets, view summaries, or manage transactions.
+
+
+---
+
+Data Storage
+
+The app stores data in simple CSV files:
+
+income_track.csv → income entries
+
+expense_data.csv → expense entries
+
+budget_expense_amount.csv → budget limits per category
+
+
+
+---
+
+Categories
+
+Income sources: Salary, Business, Freelance, Investments, Gifts, Rental Income, Dividends, Interest, Royalties, Pension, Side Hustle.
+
+Expense categories: Rent, Utilities, Food, Groceries, Transport, Personal use, Entertainment, Shopping, Healthcare, Education, Debt Repayments, Savings & Investments, Donations/Charity, Miscellaneous.
+
+
+---
+
+## Future Improvements
+
+Some features I’d like to add later:
+
+Generate detailed reports (PDF/Excel)
+
+Visual charts (spending breakdown, trends)
+
+
+Cloud backup/sync
+
+
+
+---
+
+License
+
+MIT License
