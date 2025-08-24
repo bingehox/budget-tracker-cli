@@ -31,12 +31,13 @@ Data is saved automatically in CSV files so you can track finances over time.
 ### Open terminal:
 
  - On windows use **Windows Terminal* or **Powershell* , **Terminal* on MacOs/Linux
+   
  **Note** : Avoid using command prompt since it doesn't support some of [Rich] features.
 
 - Navigate to a folder you would like to store the project, Example:
-  ```
-  bash
+  ```bash
   cd Desktop
+  ```
 
 ### Clone the repository:  
 ```bash
