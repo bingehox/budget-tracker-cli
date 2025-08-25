@@ -24,13 +24,14 @@ def clear_sys():
 def load_menu():
     with console.status("[bold green]Loading Main Menu") as status:
          sleep(1)
+
 #handles float errors
-#def isfloat(value:str) -> bool:
-   # try:
-      #  float(value)
-      #  return True
-   # except ValueError:
-     #   return False
+def cnvt_float(value):
+    try:
+       return float(value) #converts to float
+    except (ValueError, TypeError):
+        return 0.0 #instead of crashing, return 0.0
+     
 
 
 
@@ -337,7 +338,7 @@ def budget_update():
             with open(filename, "r") as file:
                 dict_r = csv.DictReader(file)
                 for row in dict_r:
-                    row["Budget"] = float(row["Budget"]) if row["Budget"] else None
+                    row["Budget"] = cnvt_float(row["Budget"]) if row["Budget"] else 0.0
                     #update the matching Category 
                     if row["Category"] == mod_budget:
                         row["Budget"] = budget_amt
@@ -461,7 +462,7 @@ def view_summary():
     panel_savings = (Panel(f"[bold green]{savings:.2f}%[/bold green] saved, {info_sa()}", title="Savings", border_style="magenta", width=40))#panel for savings
     panel_spendings = (Panel(f"[bold red]{spendings:.2f}%[/bold red] spent, {info_sp()}", title="spendings", border_style="magenta", width=40))#panel for spendings
     console.print("\n\nSavings and Spendigs")
-    console.print("-" * 50)
+    console.print("-" * 70)
     console.print(Columns([panel_savings, panel_spendings]))
 
     #with console.status("[bold green] Fetching data...") as status:
@@ -475,7 +476,7 @@ def view_summary():
         console.print("-" * 80)
         console.print(f"{'Category':<20} {'Total':>5} {'Budget':>15} {'status':>15} {'%Usage':>15}", style="cyan")
 
-        print("-" * 80)
+        print("-" * 80) 
         for category, total in exp_totals.items():
             budget = dict_budget.get(category, 0)#get the corresponding expense category(one-to-one lookup)
             usage_pct = (total / total_expense) * 100 if total else 0.0
@@ -932,7 +933,6 @@ def Main_App():
     table.add_row("3.Update Budget")
     table.add_row("4.View Summary")
     table.add_row("5.Manage Transactions")
-    table.add_row("6.Generate Report")
     table.add_row("0. \\-->...?")
 
     
