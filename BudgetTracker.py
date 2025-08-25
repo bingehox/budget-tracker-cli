@@ -862,7 +862,6 @@ def transactions():
 
             try:
                 option = int(Prompt.ask("[cyan]Choose an Option[/cyan]"))
-
                 #return to main menu
                 if option == 0:
                     #with console.status("[green]loading...[/green]") as status:
