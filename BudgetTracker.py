@@ -921,9 +921,9 @@ def transactions():
     #load_menu()
 
 
-# ===================== Main App Section =====================
+# ===================== Main App Section ================================ 
 def Main_App():
-    
+     
 
     with console.status("[bold green]Starting Main App") as status:
         sleep(2)
