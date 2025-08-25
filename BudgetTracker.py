@@ -1,3 +1,4 @@
+# ===================== Imports & Setup =====================
 import os
 import csv
 from rich import box
@@ -12,9 +13,11 @@ from datetime import datetime, date
 from time import sleep
 
 
-#console = Console(force_terminal=True, no_color=True) #Initialize Console
+# ===================== Console Initialization =====================
 console = Console()
 
+
+# ===================== Utility Functions =====================
 #clear terminal
 def clear_sys():
     os .system('cls' if os.name == 'nt' else 'clear')
@@ -24,18 +27,17 @@ def clear_sys():
 def load_menu():
     with console.status("[bold green]Loading Main Menu") as status:
          sleep(1)
-
 #handles float errors
-def cnvt_float(value):
+def convt_float(value:str):
     try:
-       return float(value) #converts to float
-    except (ValueError, TypeError):
-        return 0.0 #instead of crashing, return 0.0
-     
+      return float(value)
+    
+    except(ValueError, TypeError):
+        return 0.0
 
 
 
-#Income Track Section
+# ===================== Income Track Section =====================
 def add_income():
     clear_sys()
 
@@ -133,7 +135,7 @@ def add_income():
     clear_sys()
 
 
-#Expense Track Section
+# ===================== Expense Track Section =====================
 def add_expenses():
     clear_sys()
 
@@ -290,7 +292,9 @@ def add_expenses():
     input("\nPress Enter to continue Main Menu:\n>>>")
     clear_sys()
     load_menu()
-#Update Budget Section 
+
+
+# ===================== Update Budget Section =====================
 def budget_update():
     clear_sys()
     console.print(Panel("UPDATE BUDGET\n0. \\-->", style="bold blue"))
@@ -338,7 +342,7 @@ def budget_update():
             with open(filename, "r") as file:
                 dict_r = csv.DictReader(file)
                 for row in dict_r:
-                    row["Budget"] = cnvt_float(row["Budget"]) if row["Budget"] else 0.0
+                    row["Budget"] = convt_float(row["Budget"]) if row["Budget"] else None
                     #update the matching Category 
                     if row["Category"] == mod_budget:
                         row["Budget"] = budget_amt
@@ -361,7 +365,9 @@ def budget_update():
     input("\nPress Enter to continue Main Menu:\n>>>")
     clear_sys()
     load_menu()
-#Summary sectio
+
+
+# ===================== Summary section =========================================
 def view_summary():
     clear_sys()
     console.print(Panel("Summary View", style= "green"))
@@ -378,7 +384,7 @@ def view_summary():
         with open(filename, 'r') as file:
             dict_r =csv.DictReader(file)
             for row in dict_r:
-                amount = float(row['Inc_Amount'])
+                amount = convt_float(row['Inc_Amount'])
                 total_income += amount
 
     except FileNotFoundError:
@@ -462,13 +468,10 @@ def view_summary():
     panel_savings = (Panel(f"[bold green]{savings:.2f}%[/bold green] saved, {info_sa()}", title="Savings", border_style="magenta", width=40))#panel for savings
     panel_spendings = (Panel(f"[bold red]{spendings:.2f}%[/bold red] spent, {info_sp()}", title="spendings", border_style="magenta", width=40))#panel for spendings
     console.print("\n\nSavings and Spendigs")
-    console.print("-" * 70)
+    console.print("-" * 50)
     console.print(Columns([panel_savings, panel_spendings]))
 
-    #with console.status("[bold green] Fetching data...") as status:
-      #  sleep(2)
-    #with console.status("[bold green]Getting Totals...") as status:
-       # sleep(1)
+
 
     try:
         #loop through each category and sums
@@ -476,7 +479,7 @@ def view_summary():
         console.print("-" * 80)
         console.print(f"{'Category':<20} {'Total':>5} {'Budget':>15} {'status':>15} {'%Usage':>15}", style="cyan")
 
-        print("-" * 80) 
+        print("-" * 80)
         for category, total in exp_totals.items():
             budget = dict_budget.get(category, 0)#get the corresponding expense category(one-to-one lookup)
             usage_pct = (total / total_expense) * 100 if total else 0.0
@@ -493,6 +496,7 @@ def view_summary():
     load_menu()
 
 
+# ===================== Transactions Section =====================
 def transactions():
     clear_sys()  
 
@@ -917,7 +921,7 @@ def transactions():
     #load_menu()
 
 
-#main app
+# ===================== Main App Section =====================
 def Main_App():
     
 
@@ -933,6 +937,7 @@ def Main_App():
     table.add_row("3.Update Budget")
     table.add_row("4.View Summary")
     table.add_row("5.Manage Transactions")
+    table.add_row("6.Generate Report")
     table.add_row("0. \\-->...?")
 
     
@@ -991,5 +996,5 @@ def Main_App():
 
 
 
-Main_App() 
+Main_App()
 
