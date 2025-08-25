@@ -475,19 +475,25 @@ def view_summary():
 
     try:
         #loop through each category and sums
-        console.print("\n\nExpense Amount Breakdown")
-        console.print("-" * 80)
-        console.print(f"{'Category':<20} {'Total':>5} {'Budget':>15} {'status':>15} {'%Usage':>15}", style="cyan")
+        console.print("\n\nExpense Amount Breakdown,")
+        exb_table = Table(show_header=True, border_style="cyan")
+        exb_table.add_column("Category", header_style="magenta", style="cyan")
+        exb_table.add_column("Total", header_style="magenta", style="cyan')
+        exb_table.add_column("Budget", header_style="magenta", styl="cyan")
+        exb_table.add_column("Status", header_style="magenta", style="cyan')
+        exb_table.add_column("%Usage", header_style= "magenta", style="cyan")
+        
 
-        print("-" * 80)
+        
         for category, total in exp_totals.items():
             budget = dict_budget.get(category, 0)#get the corresponding expense category(one-to-one lookup)
             usage_pct = (total / total_expense) * 100 if total else 0.0
             status = budget_status(total,budget)
-            console.print(f"{category:<20} {total:>5.2f} {budget:>13} {status:>30} {usage_pct:>10.0f}%", style="cyan")
+             exb_table.add_row(category,   f"{total:.2f}",  f"{budget:.2f}",  status, f"{usage_pct:.2f}%" ) 
     except Exception as e:
         console.print(f"[red]Error while rendering breakdown: {e}[/red]")
-         
+
+    console.print(exb_table)
     console.log("\n[bold red]DONE!!")
     
            
