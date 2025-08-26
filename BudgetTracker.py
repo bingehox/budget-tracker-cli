@@ -126,7 +126,7 @@ def add_income():
         with console.status("[bold green]Saving...") as status:
             sleep(1)
         console.log("[bold red]DONE!!")   
-        console.print(Panel(f"Income data saved to {filename} Successfully", style="green"))
+        console.print(Panel(f"Income data saved to Successfully", style="green"))
 
     save_income_info()
 
@@ -285,7 +285,7 @@ def add_expenses():
         with console.status("[bold green]Saving...") as status:
             sleep(1)
         console.log("[bold red]DONE!!")   
-        console.print(Panel(f"Expense data saved to {filename} Successfully", style="green"))
+        console.print(Panel(f"Expense data saved to Successfully", style="green"))
 
     save_expense_info()
     
@@ -942,15 +942,14 @@ def Main_App():
     table.add_row("3.Update Budget")
     table.add_row("4.View Summary")
     table.add_row("5.Manage Transactions")
-    table.add_row("6.Generate Report")
     table.add_row("0. \\-->...?")
 
     
-    while True:
+    while True:#main loop
 
-        console.print(Panel("Burget Tracker App", width=70,  style="green"))
+        console.print(Panel("Budget Tracker App", width=70,  style="green"))
 
-        #load_menu()
+        
         console.print(Panel(table,  title="MAIN MENU", subtitle="<<>>", width=70, style="cyan", border_style="magenta"))
 
 
@@ -986,7 +985,7 @@ def Main_App():
             #Return when option not in 'option'
             elif option < 0 or option > 6:
                 console.print(Panel("INVALID OPTION, TRY AGAIN", width=70, style="red"))
-                sleep(0.4)
+                sleep(0.5)
                 clear_sys()
                 load_menu()
                 continue
@@ -994,7 +993,7 @@ def Main_App():
         #return when unexpected value is entered
         except ValueError:
             console.print(Panel("INVALID VALUE,", width=70, style="red"))
-            sleep(0.4)
+            sleep(0.5)
             clear_sys()
             load_menu()
             continue
