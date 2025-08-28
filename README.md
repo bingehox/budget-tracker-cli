@@ -42,6 +42,8 @@ Data is saved automatically in CSV files so you can track finances over time.
 ### Clone the repository:  
 ```bash
 git clone https://github.com/bingehox/budget-tracker-cli.git
+```
+```bash
 cd budget-tracker-cli
 ```
 (Optional but recommended) Create and activate a virtual environment:
