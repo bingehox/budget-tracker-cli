@@ -678,27 +678,30 @@ def transactions():
                     table_cat.add_column("Date")
 
                     try:
+                        row_found = False #flag to check if row exists
                         total_i = defaultdict(float)
                         with open("income_track.csv",'r') as file:
                             dict_r = csv.DictReader(file)
                             for row in dict_r:
                                 if row['Source'] == q_user:
                                     source = row["Source"]
+                                    row_found = True #set to true if row has data 
                                     amount_i = float(row["Inc_Amount"])
                                     total_i[source] += amount_i #Accumulate totals for the category
                                     table_cat.add_row(row['Source'], row['Inc_Amount'], row['Date'])
 
-
-                        for x, y in total_i.items():
-                            #table_cat.add_row("TOTALS:", f"{y:.1f}")
-                            t_totals_i.add_row("TOTALS:", f"{y:.1f}")
+                        if row_found:
+                            for x, y in total_i.items():                           
+                                t_totals_i.add_row("TOTALS:",  f"{y:.1f}")
                             
-                        console.print(table_cat)
-                        console.print(t_totals_i)
+                            console.print(table_cat)                           
+                            console.print(t_totals_i)
+                        else:
+                            console.print(f"[yellow]No record found for [cyan]{q_user}[/cyan] category[/yellow]")
                         break
 
                     except FileNotFoundError:
-                        console.print("No Transactions found")
+                        console.print("[yellow]No Transaction file found[/yellow]")
                         break
 
                 #checks expense list for the specified category
@@ -711,6 +714,7 @@ def transactions():
                     table_cat_e.add_column("Date")
 
                     try:
+                        row_found = False #Flag to check if row existts
                         total_e = defaultdict(float)
                         with open("expense_data.csv",'r') as file:
                             dict_r = csv.DictReader(file)
@@ -721,21 +725,24 @@ def transactions():
                                     #exp_totals[exp_category] += exp_amount
                                     category = row["Category"]
                                     amount = float(row['Expense_Amount'])
+                                    row_found = True #set to True if row has data
                                     total_e[category] += amount #accumulate totals for each category
                                     table_cat_e.add_row(row['Category'], row['Expense_Amount'], row["Date"])
                         
-                        for x, y in total_e.items():
-                            t_totals.add_row("TOTALS:", f"{y:.2f}")
-                        
-                    
+                        if row_found:
+                            for x, y in total_e.items():
+                                t_totals.add_row("TOTALS:", f"{y:.2f}")
+                                
+                            console.print(table_cat_e)
+                            console.print(t_totals)
 
-                        console.print(table_cat_e)
-                        console.print(t_totals)
+                        else:
+                            console.print(f"[yellow]No record found for [cyan]{q_user}[/cyan] category[/yellow]")   
                         break
 
 
                     except FileNotFoundError:
-                        console.print("No Transactions found")
+                        console.print("[yellow]No Transaction file found[/yellow]")
                         break
                         
                 else:
