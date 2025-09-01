@@ -239,7 +239,7 @@ def add_expenses():
             #Only allow expense category from this list
             if category not in allowed_expense_category:
                 console.print(Panel("\n".join(allowed_expense_category), title="Allowed Expense Category", width=80))
-               # raise ValueError("Please choose from the above predefined options for better user experince.\nWe’ll work on making the categories more flexible in the future!")
+                raise ValueError("Please choose from the above predefined options for better user experince.\nWe’ll work on making the categories more flexible in the future!")
             
         
 
