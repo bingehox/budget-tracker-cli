@@ -77,7 +77,7 @@ def add_income():
             #returns income list from with user can choose from 
             if inc_src == "help":
                 console.print(Panel("\n".join(allowed_inc_src), title="Allowed Income Category",width=70))
-                #raise ValueError("[green]choose from above list[/green]")
+                raise ValueError("[green]choose from above list[/green]")
             #Only allow Income from the list
             if inc_src not in allowed_inc_src:
                 console.print(Panel("\n".join(allowed_inc_src), title="Allowed Income Sources,Just For Now", width=70))
