@@ -21,6 +21,7 @@ You can record income, log expenses, set category budgets, and view summaries â€
   - Filter by income or expense  
   - Filter by category  
   - Filter by date or date range  
+  - Delete specific Transactions
 
 Data is saved automatically in CSV files so you can track finances over time.  
 

@@ -33,7 +33,7 @@ def convt_float(value:str):
       return float(value)
     
     except(ValueError, TypeError):
-        return 0.0
+        return 0.0 
 
 
 
@@ -253,6 +253,10 @@ def add_expenses():
             console.print(Panel(f"[bold red]{str(e)}[/bold red]"), style="bold red", width=80)
             #console.print(Panel("Invalid Value, Try Again"), style="bold red")
             continue
+    
+    #expense Description
+    descr = Prompt.ask(f"[yellow]{category}[/yellow] [cyan]description[/cyan]\n>>>")
+
 
     #Date logic
     while True:
@@ -270,8 +274,8 @@ def add_expenses():
             continue #repeats when user enters invalid date format
 
 
-    fields = ['Category', 'Expense_Amount', 'Date']
-    csv_expense_data = {'Category':category, 'Expense_Amount': expense_amt,'Date': date_obj}
+    fields = ['Category', 'Expense_Amount', 'Description', 'Date']
+    csv_expense_data = {'Category':category, 'Expense_Amount': expense_amt, 'Description': descr, 'Date': date_obj}
 
     write_header = not os.path.exists(filename) or os.path.getsize(filename) == 0 #checks if the file name exists and is not empty
 
@@ -515,6 +519,7 @@ def transactions():
         table_tm.add_row("3. View only Expenses")
         table_tm.add_row("4. View by Category")
         table_tm.add_row("5. View by Date Range")
+        table_tm.add_row("6. Delete Transaction")
         table_tm.add_row(" 0. \\->...?")
 
         console.print(Panel(table_tm, title="TRANSACTION MENU", border_style="magenta", style="cyan", width=70))
@@ -593,7 +598,9 @@ def transactions():
             table_e = Table(title="EXPENSE TRANSACTIONS", width=70, style="cyan", show_lines=True, box=box.ROUNDED, show_header=True)
             table_e.add_column("Category",header_style="magenta",style="cyan")
             table_e.add_column("Amount", header_style="magenta", style="cyan")
+            table_e.add_column("Description", header_style="magenta", style="cyan")
             table_e.add_column("Date", header_style="magenta", style="cyan")
+
             try:
 
                 filename = "expense_data.csv"
@@ -602,7 +609,7 @@ def transactions():
                     dict_ri = csv.DictReader(file)
                     
                     for row in dict_ri:
-                        table_e.add_row(row['Category'], f"[red]{row['Expense_Amount']}[/red]", row['Date'])
+                        table_e.add_row(row['Category'], f"[red]{row['Expense_Amount']}[/red]", row['Description'], row['Date'])
 
                 console.print(table_e)
 
@@ -667,7 +674,7 @@ def transactions():
             console.print(tree)
 
             while True:
-                q_user = Prompt.ask("Provide a category key-word you would like to lookup 🔎:\n>>>")
+                q_user = Prompt.ask("[yellow]Provide a category key-word you would like to lookup[/yellow] 🔎:\n>>>")
 
                 #check income list for the specified category
                 if q_user in allowed_inc_src:
@@ -707,11 +714,12 @@ def transactions():
                 #checks expense list for the specified category
                 elif q_user  in allowed_expense_category:
 
-                    table_cat_e = Table(title=f"{q_user} Category")
+                    table_cat_e = Table(title=f"{q_user} Category", border_style="cyan")
                     t_totals = Table(show_header=False, box=None)
-                    table_cat_e.add_column("Category")
-                    table_cat_e.add_column("Amount")
-                    table_cat_e.add_column("Date")
+                    table_cat_e.add_column("Category", header_style="magenta", style="cyan")
+                    table_cat_e.add_column("Amount", header_style="magenta", style="red")
+                    table_cat_e.add_column("Description", header_style="magenta", style="cyan")
+                    table_cat_e.add_column("Date", header_style="magenta", style="cyan")
 
                     try:
                         row_found = False #Flag to check if row existts
@@ -727,7 +735,7 @@ def transactions():
                                     amount = float(row['Expense_Amount'])
                                     row_found = True #set to True if row has data
                                     total_e[category] += amount #accumulate totals for each category
-                                    table_cat_e.add_row(row['Category'], row['Expense_Amount'], row["Date"])
+                                    table_cat_e.add_row(row['Category'], row['Expense_Amount'], row['Description'], row["Date"])
                         
                         if row_found:
                             for x, y in total_e.items():
@@ -763,7 +771,7 @@ def transactions():
         def view_by_date():
             clear_sys()
 
-            console.print(Panel("View by Date/Date Range"), width=70, style="magenta")
+            console.print(Panel("View by Date/Date Range"), width=70, style="blue")
             console.print("[magenta]1.View by Single Date[/magenta]", style="magenta")
             console.print("[magenta]2.View by Date Range[/magenta]", style="magenta")
 
@@ -788,20 +796,21 @@ def transactions():
                     table_d_e = Table(title="Date Category", border_style="cyan")
                     table_d_e.add_column("Category", style="cyan", header_style="magenta")
                     table_d_e.add_column("Amount", style="red", header_style="magenta")
+                    table_d_e.add_column("Description", style="cyan",header_style="magenta")
                     table_d_e.add_column("Date", style="cyan", header_style="magenta")
                     with open("expense_data.csv", 'r') as file:
                         dict_r = csv.DictReader(file)
                         for row in dict_r:
                             date_row = datetime.strptime(row['Date'], "%Y-%m-%d").date()
                             if date_obj == date_row:
-                                table_d_e.add_row(row['Category'], row['Expense_Amount'], row['Date'])
+                                table_d_e.add_row(row['Category'], row['Expense_Amount'], row['Description'], row['Date'])
 
                     console.print(table_d_e)
 
                         
 
                 except FileNotFoundError:
-                    console.print("No data Found, Try adding New Ones")
+                    console.print("No data Found, Try adding New Ones", style="yellow")
 
             #view by Date Range
             elif option_d == 2:
@@ -862,6 +871,142 @@ def transactions():
             clear_sys()
             load_menu()
 
+        #Delete transaction
+        def delete_transactions():
+            clear_sys()
+
+            console.print("1. From Income\n2. From Expense\n0. \\-->", style="cyan")
+            option_del = int(Prompt.ask("[yellow]Choose  to delete from[/yellow]"))
+
+           
+            #delete from income
+            if option_del == 1:  
+
+                v_table_i = Table(title="INCOME TRANSACTION", width=70, style="cyan", show_lines=True, show_header=True)
+                v_table_i.add_column("#", justify="right")
+                v_table_i.add_column("Category",header_style="magenta",style="cyan")
+                v_table_i.add_column("Amount", header_style="magenta", style="cyan")
+                v_table_i.add_column("Date", header_style="magenta", style="cyan")
+
+                counter = 1 #starts with one
+                try:
+
+                    file_name = "income_track.csv"
+
+                    with  open(file_name, 'r') as file:
+                        rows = list(csv.DictReader(file))
+                        
+                        for row in rows:
+                            v_table_i.add_row(str(counter), row['Source'], f"[green]{row['Inc_Amount']}[/green]", row['Date'])
+                            counter += 1 #for incrementing
+
+                        console.print(v_table_i)
+
+
+                    #ask wich row to delete
+                    del_row = Prompt.ask("[yellow]Enter Row number you wish to delete[/yellow]\n>>>", default="0")
+
+                    if del_row.isdigit():
+                        del_row = int(del_row) #convers str to int
+                        if del_row == 0:
+                            console.print("Cancelled", style="yellow")
+                        elif 1 <= del_row <= len(rows):
+                            deleted_row = rows.pop(del_row -1)# remove row from the list
+
+                            #write back the update file
+                            with open(file_name, 'w') as file:
+                                writer = csv.DictWriter(file, fieldnames=deleted_row.keys())
+                                writer.writeheader()
+                                writer.writerows(rows)
+
+                            console.print(f"[green]Deleted row[/green] {del_row}: [yellow]{deleted_row}[/yellow]")
+
+                        else:
+                            console.print(f"[red] Row {del_row} out of range[/red]")
+                    else:
+                        console.print("[red]Invalid choice[/red]")
+
+
+                except FileNotFoundError:
+                    console.print(Panel("No Transactions Found"))
+                
+                input("\nEnter to continue\n>>>")
+                clear_sys()
+                sleep(0.3)
+                console.print(Panel(table_tm, title="TRANSACTION MENU", border_style="magenta", style="cyan", width=70))
+            
+            #delete from expense csv
+            elif option_del == 2:
+
+                v_table_e = Table(title="Expense TRANSACTION", width=70, style="cyan", show_lines=True, show_header=True)
+                v_table_e.add_column("#", justify="right")
+                v_table_e.add_column("Category",header_style="magenta",style="cyan")
+                v_table_e.add_column("Amount", header_style="magenta", style="cyan")
+                v_table_e.add_column("Date", header_style="magenta", style="cyan")
+
+                counter = 1 #starts with one
+                try:
+
+                    file_name = "expense_data.csv"
+
+                    with  open(file_name, 'r') as file:
+                        rows = list(csv.DictReader(file))
+                        
+                        for row in rows:
+                            v_table_e.add_row(str(counter), row['Category'], f"[green]{row['Expense_Amount']}[/green]", row['Date'])
+                            counter += 1 #for incrementing
+
+                        console.print(v_table_e)
+
+
+                    #ask wich row to delete
+                    del_row = Prompt.ask("[yellow]Enter Row number you wish to delete[/yellow]\n>>>", default="0")
+
+                    if del_row.isdigit():
+                        del_row = int(del_row) #convers str to int
+                        if del_row == 0:
+                            console.print("Cancelled", style="yellow")
+                        elif 1 <= del_row <= len(rows):
+                            deleted_row = rows.pop(del_row -1)# remove row from the list
+
+                            #write back the update file
+                            with open(file_name, 'w') as file:
+                                writer = csv.DictWriter(file, fieldnames=deleted_row.keys())
+                                writer.writeheader()
+                                writer.writerows(rows)
+
+                            console.print(f"[green]Deleted row[/green] {del_row}: [yellow]{deleted_row}[/yellow]")
+
+                        else:
+                            console.print(f"[red] Row {del_row} out of range[/red]")
+                    else:
+                        console.print("[red]Invalid choice[/red]")
+
+
+                except FileNotFoundError:
+                    console.print(Panel("No Transactions Found"))
+
+                input("\nEnter to continue\n>>>")
+                clear_sys()
+                sleep(0.3)
+                console.print(Panel(table_tm, title="TRANSACTION MENU", border_style="magenta", style="cyan", width=70))
+
+            elif option_del == 0:
+                clear_sys()
+                console.print(Panel(table_tm, title="TRANSACTION MENU", border_style="magenta", style="cyan", width=70))
+
+
+
+            elif option_del < 0 or option_del > 2:
+                console.print("Value out of range", style="red")
+                sleep(1)
+                console.print("Try Again", style="red")
+                sleep(0.5)
+                clear_sys()
+                console.print(Panel(table_tm, title="TRANSACTION MENU", border_style="magenta", style="cyan", width=70))
+
+            
+                
 
         #logic flow section
 
@@ -894,7 +1039,12 @@ def transactions():
                 #view by Date
                 elif option == 5:
                     view_by_date()
+                
+                #delete transaction
+                elif option == 6:
+                    delete_transactions()
 
+                #if not option
                 elif option < 0 or option > 5:
                     console.print(Panel("INVALID OPTION, TRY AGAIN", width=70, style="red"))
                     sleep(0.3)
@@ -904,8 +1054,11 @@ def transactions():
             
             #return when unexpected value is entered
             except ValueError:
-                console.print(Panel("INVALID VALUE,", width=70, style="red"))
-                sleep(0.3)
+                console.print(Panel("INVALID VALUE, TRY AGAIN", width=70, style="red"))
+                sleep(0.5)
+                clear_sys()
+                console.print(Panel(table_tm, title="TRANSACTION MENU", border_style="magenta", style="cyan", width=70))
+
                 
                 continue
 
